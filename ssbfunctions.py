@@ -30,7 +30,6 @@ class earth_tools(falc_tools):
         falc_tools.__init__(self)
         self.h, self.logP, self.temp, self.logrho, self.logN = pl.loadtxt('data/earth.dat', usecols=(0,1,2,3,4), unpack=True)
 
-
 class solcont_tools(falc_tools):
     def __init__(self):
         falc_tools.__init__(self)
@@ -233,3 +232,79 @@ class specline(solcont_tools):
         nstar_sq = Rydberg*(Z**2)/(E_ionization - E_n[s-1])
         rsq = nstar_sq*(5*nstar_sq + 1 - 3*l[s-1]*(l[s-1] + 1))/(2*Z**2)
         return rsq
+
+    def Na_spectra(self, wav, wvl):
+        # wl in nanometers
+        ionstage     = 1
+        level        = 2
+        b_l          = 1.
+        b_u          = 1.
+        A_Na         = 1.8*1e-6 # Sodium abundance
+        f_lu         = [0.318,0.631]
+        pgas         = self.pgasptot*self.ptot
+
+        ext       = pl.zeros(len(self.tau5))
+        tau       = pl.zeros(len(self.tau5))
+        intt      = pl.zeros(len(self.tau5))
+        hint      = pl.zeros(len(self.tau5))
+        integrand = pl.zeros(len(self.tau5))
+        contfunc  = pl.zeros(len(self.tau5))
+
+        # doppler material
+        doppler = self.dopplerwidth(wav[0], self.temp, self.vturb, self.m_Na) #values for NaID1
+
+        # voigt profile
+        gamma        = self.gammavdw_NaD(self.temp, pgas, level)    #van der waal damping
+        voigtprofile = pl.zeros((len(self.h), len(wvl)))
+
+        a = pl.zeros((len(self.h),len(wvl)))
+        v = pl.zeros((len(self.h),len(wvl)))
+        for j in pl.arange(len(self.h)):
+            for i in pl.arange(len(wvl)):
+                a[j][i] = (wvl[i]**2)*gamma[j]/(doppler[j]*4*pl.pi*self.c)
+                v[j][i] = (wvl[i]-wav[0])/doppler[j]
+                voigtprofile[j][i] = self.voigt(a[j][i],v[j][i])*doppler[j]*(pl.pi**0.5)
+
+        exthminID    = pl.zeros((len(wvl), len(self.h)))
+        extcont      = pl.zeros((len(wvl), len(self.h)))
+        exttotal     = pl.zeros((len(wvl), len(self.h)))
+        ext_elec     = self.sigma_Thomson*self.nel
+
+        # NaDI extinction
+        NaID_ext     = pl.zeros((len(wvl), len(self.h)))
+        for j in pl.arange(len(wvl)):
+            for i in pl.arange(len(self.h)):
+                fac1 = (pl.pi**0.5)*pl.exp(2)*wvl[j]*wvl[i]/ (b_l*self.m_e*self.c**2)
+                fac2 = self.sahabolt_Na(self.temp[i], self.nel[i], ionstage, level)
+                fac3 = self.nhyd[i]*A_Na*f_lu[0]
+                fac4 = (pl.pi**0.5)*voigtprofile[i,j]
+                fac5 = 1. - (b_u/b_l)*pl.exp(-self.hcons*self.c/(wav[0]*self.kerg*self.temp[i]))
+                # print type(fac1),type(fac2),type(fac3),type(fac4),type(fac5), i, j
+                # print 
+                NaID_ext[j][i]  = fac1*fac2*fac3*fac4*fac5
+                
+                # Continuum extinction
+                exthminID[j][i] = self.exthmin(wvl[j]*1e8, self.temp[i], self.nel[i])*(self.nhyd[i] - self.nprot[i])
+                extcont[j][i]   = exthminID[j][i] + ext_elec[i]
+                exttotal[j][i]  = NaID_ext[j][i] + extcont[j][i]
+
+        # Then the integration over the spectrum
+        for j in range(len(wvl)):
+            for i in range(1,len(tau)):
+                tau[i] = tau[i-1] + 0.5*(exttotal[j][i] + exttotal[j][i-1])*(self.h[i-1] - self.h[i])*1e5
+                integrand[i] = self.Planckfunc(self.temp[i], wvl[j]*1e4)*pl.exp(-tau[i])
+                intt[j] += 0.5*(integrand[i] + integrand[i-1])*(tau[i] - tau[i-1])
+                hint[j] += self.h[i]*0.5*(integrand[i] + integrand[i-1])*(tau[i] - tau[i-1])
+
+        return intt
+        #######
+        
+
+        # for i in pl.arange(1, len(self.tau5)):
+        #     ext[i] = self.exthmin(wl*1e4, self.temp[i], self.nel[i])*(self.nhyd[i] - self.nprot[i]) + self.sigma_Thomson*self.nel[i]
+        #     tau[i] = tau[i-1] + 0.5*(ext[i] + ext[i-1])*(self.h[i-1] - self.h[i])*1e5
+
+        #     integrand[i] = self.Planckfunc(self.temp[i], wl*1e-4)*pl.exp(-tau[i]/mu)
+        #     intt += 0.5*(integrand[i] + integrand[i-1])*(tau[i] - tau[i-1])/mu
+        #     hint += self.h[i]*0.5*(integrand[i] + integrand[i-1])*(tau[i] - tau[i-1])
+        #     contfunc[i] = integrand[i]*ext[i]

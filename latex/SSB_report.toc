@@ -1,0 +1,45 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}Stratification of the solar atmosphere}{3}{section.1}
+\contentsline {subsection}{\numberline {1.1}FALC temperature stratification}{3}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}FALC density stratification}{4}{subsection.1.2}
+\contentsline {subsubsection}{\numberline {1.2.1}Total pressure against column mass}{4}{subsubsection.1.2.1}
+\contentsline {subsubsection}{\numberline {1.2.2}Complete mixing at heights}{5}{subsubsection.1.2.2}
+\contentsline {subsubsection}{\numberline {1.2.3}Column mass and height}{6}{subsubsection.1.2.3}
+\contentsline {subsubsection}{\numberline {1.2.4}Gas density and height}{6}{subsubsection.1.2.4}
+\contentsline {subsubsection}{\numberline {1.2.5}Gas pressure and height}{7}{subsubsection.1.2.5}
+\contentsline {subsubsection}{\numberline {1.2.6}Density comparisons}{8}{subsubsection.1.2.6}
+\contentsline {subsubsection}{\numberline {1.2.7}Ionization fraction}{9}{subsubsection.1.2.7}
+\contentsline {subsubsection}{\numberline {1.2.8}Photon densities}{9}{subsubsection.1.2.8}
+\contentsline {subsection}{\numberline {1.3}Comparison with the Earth's atmosphere}{10}{subsection.1.3}
+\contentsline {subsubsection}{\numberline {1.3.1}Plots of data}{10}{subsubsection.1.3.1}
+\contentsline {subsubsection}{\numberline {1.3.2}Normalized pressure, gas and number densities}{11}{subsubsection.1.3.2}
+\contentsline {subsubsection}{\numberline {1.3.3}Mean molecular weight}{11}{subsubsection.1.3.3}
+\contentsline {subsubsection}{\numberline {1.3.4}Earth density scale height}{12}{subsubsection.1.3.4}
+\contentsline {subsubsection}{\numberline {1.3.5}Earth and Sun surface parameter comparison}{12}{subsubsection.1.3.5}
+\contentsline {subsubsection}{\numberline {1.3.6}Solar irradiance at earth}{12}{subsubsection.1.3.6}
+\contentsline {subsection}{\numberline {1.4}Discussion}{13}{subsection.1.4}
+\contentsline {section}{\numberline {2}Continuous spectrum from the solar atmosphere}{13}{section.2}
+\contentsline {subsection}{\numberline {2.1}Observed solar continua}{13}{subsection.2.1}
+\contentsline {subsubsection}{\numberline {2.1.1}Spectral distribution data}{13}{subsubsection.2.1.1}
+\contentsline {subsubsection}{\numberline {2.1.2}Planck fitting to solar continuum intensity}{14}{subsubsection.2.1.2}
+\contentsline {subsubsection}{\numberline {2.1.3}Brightness temperature distribution over wavelength}{14}{subsubsection.2.1.3}
+\contentsline {subsection}{\numberline {2.2}Continuous extinction}{15}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}Wavelength variation of hydrogenic extinction for h=0 km}{15}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Extinction line as brightness temperature}{15}{subsubsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.3}Elements' extinction comparisons}{16}{subsubsection.2.2.3}
+\contentsline {subsection}{\numberline {2.3}Optical depth}{16}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Emergent intensity and height of formation}{17}{subsection.2.4}
+\contentsline {subsubsection}{\numberline {2.4.1}Peak-normalized contribution and peak location}{17}{subsubsection.2.4.1}
+\contentsline {subsection}{\numberline {2.5}Disk-center intensity}{17}{subsection.2.5}
+\contentsline {subsubsection}{\numberline {2.5.1}Emergent continuum}{17}{subsubsection.2.5.1}
+\contentsline {subsection}{\numberline {2.6}Limb darknening}{18}{subsection.2.6}
+\contentsline {subsection}{\numberline {2.7}Flux integration}{18}{subsection.2.7}
+\contentsline {subsection}{\numberline {2.8}Discussion}{19}{subsection.2.8}
+\contentsline {section}{\numberline {3}Spectral lines from the solar atmosphere}{19}{section.3}
+\contentsline {subsection}{\numberline {3.1}Na D wavelengths}{19}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}LTE line formation}{19}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Line extinction}{19}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Line broadening}{19}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.5}Implementation}{19}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.6}Computed Na D$_1$ line profile}{19}{subsection.3.6}
+\contentsline {subsection}{\numberline {3.7}Discussion}{19}{subsection.3.7}

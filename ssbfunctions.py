@@ -190,7 +190,7 @@ class specline(solcont_tools):
     def sahabolt_Na(self, temp, eldens, ionstage, level):
         return self.saha_Na(temp, eldens, ionstage)*self.boltz_Na(temp, ionstage, level)
 
-    def dopplerwidth(self, wav,temp,v_t,m):
+    def dopplerwidth(self, wav, temp, v_t, m):
         # Takes in central wavelength in cm, temperature in K, v_t in km/s, 
         # and m in grams and returns dopplerwidth in cm.
         return wav/self.c*pl.sqrt(2.*self.kerg*temp/m + v_t*v_t*1e10)
@@ -234,6 +234,7 @@ class specline(solcont_tools):
         return rsq
 
     def Na_spectra(self, wav, wvl):
+        # wav is minima wavelength
         # wl in nanometers
         ionstage     = 1
         level        = 2
@@ -242,16 +243,11 @@ class specline(solcont_tools):
         A_Na         = 1.8*1e-6 # Sodium abundance
         f_lu         = [0.318,0.631]
         pgas         = self.pgasptot*self.ptot
-
-        ext       = pl.zeros(len(self.tau5))
-        tau       = pl.zeros(len(self.tau5))
-        intt      = pl.zeros(len(self.tau5))
-        hint      = pl.zeros(len(self.tau5))
-        integrand = pl.zeros(len(self.tau5))
-        contfunc  = pl.zeros(len(self.tau5))
+        #ext       = pl.zeros(len(self.tau5))
 
         # doppler material
-        doppler = self.dopplerwidth(wav[0], self.temp, self.vturb, self.m_Na) #values for NaID1
+        doppler = self.dopplerwidth(wav, self.temp, self.vturb, self.m_Na)
+        # values for NaID1 only
 
         # voigt profile
         gamma        = self.gammavdw_NaD(self.temp, pgas, level)    #van der waal damping
@@ -262,15 +258,15 @@ class specline(solcont_tools):
         for j in pl.arange(len(self.h)):
             for i in pl.arange(len(wvl)):
                 a[j][i] = (wvl[i]**2)*gamma[j]/(doppler[j]*4*pl.pi*self.c)
-                v[j][i] = (wvl[i]-wav[0])/doppler[j]
-                voigtprofile[j][i] = self.voigt(a[j][i],v[j][i])*doppler[j]*(pl.pi**0.5)
+                v[j][i] = (wvl[i] - wav)/doppler[j]
+                voigtprofile[j][i] = self.voigt(a[j][i], v[j][i])*doppler[j]*(pl.pi**0.5)
 
         exthminID    = pl.zeros((len(wvl), len(self.h)))
         extcont      = pl.zeros((len(wvl), len(self.h)))
         exttotal     = pl.zeros((len(wvl), len(self.h)))
         ext_elec     = self.sigma_Thomson*self.nel
 
-        # NaDI extinction
+        # NaDI and continuum extinction
         NaID_ext     = pl.zeros((len(wvl), len(self.h)))
         for j in pl.arange(len(wvl)):
             for i in pl.arange(len(self.h)):
@@ -278,7 +274,7 @@ class specline(solcont_tools):
                 fac2 = self.sahabolt_Na(self.temp[i], self.nel[i], ionstage, level)
                 fac3 = self.nhyd[i]*A_Na*f_lu[0]
                 fac4 = (pl.pi**0.5)*voigtprofile[i,j]
-                fac5 = 1. - (b_u/b_l)*pl.exp(-self.hcons*self.c/(wav[0]*self.kerg*self.temp[i]))
+                fac5 = 1. - (b_u/b_l)*pl.exp(-self.hcons*self.c/(wav*self.kerg*self.temp[i]))
                 # print type(fac1),type(fac2),type(fac3),type(fac4),type(fac5), i, j
                 # print 
                 NaID_ext[j][i]  = fac1*fac2*fac3*fac4*fac5
@@ -287,10 +283,16 @@ class specline(solcont_tools):
                 exthminID[j][i] = self.exthmin(wvl[j]*1e8, self.temp[i], self.nel[i])*(self.nhyd[i] - self.nprot[i])
                 extcont[j][i]   = exthminID[j][i] + ext_elec[i]
                 exttotal[j][i]  = NaID_ext[j][i] + extcont[j][i]
-
+        
         # Then the integration over the spectrum
-        for j in range(len(wvl)):
-            for i in range(1,len(tau)):
+        tau       = pl.zeros(len(self.tau5))
+        integrand = pl.zeros(len(self.tau5))
+        contfunc  = pl.zeros(len(self.tau5))
+        
+        intt      = pl.zeros(len(wvl))
+        hint      = pl.zeros(len(wvl))
+        for j in pl.arange(len(wvl)):
+            for i in pl.arange(1,len(tau)):
                 tau[i] = tau[i-1] + 0.5*(exttotal[j][i] + exttotal[j][i-1])*(self.h[i-1] - self.h[i])*1e5
                 integrand[i] = self.Planckfunc(self.temp[i], wvl[j]*1e4)*pl.exp(-tau[i])
                 intt[j] += 0.5*(integrand[i] + integrand[i-1])*(tau[i] - tau[i-1])

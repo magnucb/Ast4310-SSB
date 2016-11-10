@@ -1108,7 +1108,7 @@ contfunc = np.zeros(np.size(tau5))
 
 intt = np.zeros(np.size(wavelen))
 hint = np.zeros(np.size(wavelen))
-
+print len(wavelen), len(tau), len(integrand), len(intt)
 for j in range(np.size(wavelen)):
     for i in range(1,len(tau)): # the index zero is not accounted for
         tau[i] = tau[i-1] + 0.5*(exttotal[j][i]+exttotal[j][i-1])*(height[i-1]-height[i])*1e5
@@ -1117,7 +1117,7 @@ for j in range(np.size(wavelen)):
         hint[j] += height[i]*0.5*(integrand[i]+integrand[i-1])*(tau[i]-tau[i-1])
 
 wavelen *=1e8   #convert wavelen from cm to Angstrom
-
+print len(S_spec), len(wavelength_vac)
 plt.figure()
 
 plt.plot(wavelen,intt/np.max(intt),'-')

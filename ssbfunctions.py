@@ -184,7 +184,7 @@ class specline(solcont_tools):
         u   = self.partfunc_Na(temp)
         chi = [0, En1, En2]
         g   = [2, 2, 4]
-        relnrs = g[s]*pl.exp(-(chi[s])/(self.keV*temp)) / u[r]
+        relnrs = g[s-1]*pl.exp(-(chi[s-1])/(self.keV*temp)) / u[r-1]
         return relnrs
 
     def sahabolt_Na(self, temp, eldens, ionstage, level):
@@ -193,23 +193,22 @@ class specline(solcont_tools):
     def dopplerwidth(self, wav, temp, v_t, m):
         # Takes in central wavelength in cm, temperature in K, v_t in km/s, 
         # and m in grams and returns dopplerwidth in cm.
-        return wav/self.c*pl.sqrt(2.*self.kerg*temp/m + v_t*v_t*1e10)
+        return wav*pl.sqrt(2.*self.kerg*temp/m + v_t*v_t*1e10)/self.c
 
     def voigt(self, a, v):
         z = v + 1j*a
-        # print "a=", a," ; v=", v
         V = special.wofz(z).real
         return V
-
-    # voigt_NaD = voigt(a_voigt, v_voigt) / dopplerwidth
 
     def gammavdw_NaD(self, temp, pgas, s):
         # Van der Waals broadening for Na D1 and Na D2
         # s=2 : Na D1
         # s=3 : Na D2
         # classical Unsold recipe
+        s = s+1
         rsq_u = self.rsq_NaD(s)
         rsq_l = self.rsq_NaD(1) # lower level D1 and D2 lines are ground state s=1
+        
         loggvdw = 6.33 + 0.4*pl.log10(rsq_u - rsq_l) + pl.log10(pgas) - 0.7*pl.log10(temp)
         return 10**loggvdw
 
@@ -235,32 +234,36 @@ class specline(solcont_tools):
 
     def Na_spectra(self, wav, wvl):
         # wav is minima wavelength
-        # wl in nanometers
+        # wavelengths in angstrom
         ionstage     = 1
-        level        = 2
+        level        = 1
         b_l          = 1.
         b_u          = 1.
         A_Na         = 1.8*1e-6 # Sodium abundance
         f_lu         = [0.318,0.631]
         pgas         = self.pgasptot*self.ptot
-        #ext       = pl.zeros(len(self.tau5))
-
+        elcharge     = 4.803204e-10 # statcoulomb
+        
         # doppler material
-        doppler = self.dopplerwidth(wav, self.temp, self.vturb, self.m_Na)
+        doppler = self.dopplerwidth(wav*1e-8, self.temp, self.vturb, self.m_Na) # takes cm
         # values for NaID1 only
 
         # voigt profile
-        gamma        = self.gammavdw_NaD(self.temp, pgas, level)    #van der waal damping
+        gamma        = self.gammavdw_NaD(self.temp, pgas, level)
+        # van der waal damping
         voigtprofile = pl.zeros((len(self.h), len(wvl)))
-
+        E = 2.
         a = pl.zeros((len(self.h),len(wvl)))
         v = pl.zeros((len(self.h),len(wvl)))
         for j in pl.arange(len(self.h)):
             for i in pl.arange(len(wvl)):
-                a[j][i] = (wvl[i]**2)*gamma[j]/(doppler[j]*4*pl.pi*self.c)
-                v[j][i] = (wvl[i] - wav)/doppler[j]
-                voigtprofile[j][i] = self.voigt(a[j][i], v[j][i])*doppler[j]*(pl.pi**0.5)
+                # still working in cm
+                a[j][i] = ((1e-8*wvl[i])**2)*E*gamma[j]/(doppler[j]*4*pl.pi*self.c)
 
+                v[j][i] = 1e-8*(wvl[i] - wav)/(doppler[j])
+                
+                voigtprofile[j][i] = self.voigt(a[j][i], v[j][i])/(doppler[j])
+ 
         exthminID    = pl.zeros((len(wvl), len(self.h)))
         extcont      = pl.zeros((len(wvl), len(self.h)))
         exttotal     = pl.zeros((len(wvl), len(self.h)))
@@ -270,20 +273,18 @@ class specline(solcont_tools):
         NaID_ext     = pl.zeros((len(wvl), len(self.h)))
         for j in pl.arange(len(wvl)):
             for i in pl.arange(len(self.h)):
-                fac1 = (pl.pi**0.5)*pl.exp(2)*wvl[j]*wvl[i]/ (b_l*self.m_e*self.c**2)
+                fac1 = 1e-16*(pl.pi**0.5)*(elcharge**2)*wvl[j]*wvl[i]/(b_l*self.m_e*self.c**2)
                 fac2 = self.sahabolt_Na(self.temp[i], self.nel[i], ionstage, level)
                 fac3 = self.nhyd[i]*A_Na*f_lu[0]
-                fac4 = (pl.pi**0.5)*voigtprofile[i,j]
-                fac5 = 1. - (b_u/b_l)*pl.exp(-self.hcons*self.c/(wav*self.kerg*self.temp[i]))
-                # print type(fac1),type(fac2),type(fac3),type(fac4),type(fac5), i, j
-                # print 
+                fac4 = voigtprofile[i,j]
+                fac5 = 1. - (b_u/b_l)*pl.exp(-self.hcons*self.c/(1e-8*wav*self.kerg*self.temp[i]))
                 NaID_ext[j][i]  = fac1*fac2*fac3*fac4*fac5
                 
                 # Continuum extinction
-                exthminID[j][i] = self.exthmin(wvl[j]*1e8, self.temp[i], self.nel[i])*(self.nhyd[i] - self.nprot[i])
+                exthminID[j][i] = self.exthmin(wvl[j], self.temp[i], self.nel[i])*(self.nhyd[i] - self.nprot[i])
                 extcont[j][i]   = exthminID[j][i] + ext_elec[i]
                 exttotal[j][i]  = NaID_ext[j][i] + extcont[j][i]
-        
+
         # Then the integration over the spectrum
         tau       = pl.zeros(len(self.tau5))
         integrand = pl.zeros(len(self.tau5))
@@ -291,10 +292,11 @@ class specline(solcont_tools):
         
         intt      = pl.zeros(len(wvl))
         hint      = pl.zeros(len(wvl))
+
         for j in pl.arange(len(wvl)):
             for i in pl.arange(1,len(tau)):
                 tau[i] = tau[i-1] + 0.5*(exttotal[j][i] + exttotal[j][i-1])*(self.h[i-1] - self.h[i])*1e5
-                integrand[i] = self.Planckfunc(self.temp[i], wvl[j]*1e4)*pl.exp(-tau[i])
+                integrand[i] = self.Planckfunc(self.temp[i], wvl[j]*1e-8)*pl.exp(-tau[i])
                 intt[j] += 0.5*(integrand[i] + integrand[i-1])*(tau[i] - tau[i-1])
                 hint[j] += self.h[i]*0.5*(integrand[i] + integrand[i-1])*(tau[i] - tau[i-1])
 

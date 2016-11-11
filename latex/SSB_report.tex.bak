@@ -126,8 +126,7 @@
 	\includegraphics[scale=0.45]{frontpage.png}
 \end{figure}
 \begin{abstract}
-asdasdasd
-
+In the spirit of "old astronomy" (meaning: older than 20 years) the student is asked to 
 \end{abstract}
 
 %\begin{center}
@@ -139,8 +138,9 @@ asdasdasd
 
 \newpage
 \section*{Introduction}
-%TODO 
-asdasdasdasdasd
+This project specializes the student's knowledge base to include how to treat spectral extinction line formations, by looking at different data pools that are either observed or computed in the distant past and made available for educational purposes.
+
+The assignment then sets out to plot and compare these data, to let the student explain some noteworthy physical phenomena that arise through the data and through numerical models that the student is to implement.
 
 \section{Stratification of the solar atmosphere} 						%%% section 1
 
@@ -505,26 +505,27 @@ The last fraction's yielded number would suggest that the Earth is an intensely 
 	The NaID lines are noted  by their minima lines at wavelengths $\lambda_{\text{NaID}_1} = 5895.92 \AA$, and $\lambda_{\text{NaID}_2} = 5889.95 \AA$.}
 \end{figure}
 
+\subsection{Computed NaID$_1$ line profile}
 
-\subsection{LTE line formation}
+\begin{figure}[H]
+\center
+	\includegraphics[scale=0.42]{../figs/3NaDspectrum.png}
+	\caption{Plot of relative intensity over wavelength, from solar intensity atlas, with computed LTE line profle for NaID$_1$ extinction, using the Unsöld recipe for Van der Waals broading.}
+\end{figure}
 
-\subsection{Line extinction}
-
-\subsection{Line broadening}
-
-\subsection{Implementation}
-
-\subsection{Computed Na D$_1$ line profile}
-
-\subsection{Discussion}
+\subsection{Conclusion/Discussion}
+All in all, the whole of this assignment has been about slowly understanding and then adding effects together that together will constitute physical phenomena which we, in the end, may model using programs that include reasonable simplifications for numerical approximations.
 
 
 
-\section*{Conclusion and discussion}
-asdasdasd
+In the end, it is impressive how well the numerical model fits, but sadly, it doesn't fit the data completely. This is in large part faulted to some of the assumptions we make, mainly the LTE conditions for the center part of the extinction line - and our numerical model is based on LTE conditions, whereas some physical phenomena that contribute to actual extinction are not.
+
+To be completely honest, the hardest part of this assignment is keeping track of the units of data going into functions; and different functions having different preferences. A solution to this could be to implement the infamous \verb|Astropy| library to let it keep track of units for us - but I chose not to, and did well not to implement \verb|Astropy|. The numerical calculator for flux at the end of section 2 took me 1.1 seconds to read, run and plot. Compared to an \verb|Astropy|-oriented script designed by a student peer of mine, where his program required over a full hour to run with that library, I'm glad I've chosen to understand how these programs interconnect, rather than letting some library fix this for me.
+
+That said, I really wish everything we measured and calculated was measured to SI units, so that I would be able to concentrate on learning the physics behind the models' phenomena, rather than spending hours on end troubleshooting programs that may or may not to what they should, or they may or may not be simply misinterpreting units that we forget to keep track over, given the fact of how intricately interconnected these units indeed are.
 
 \section*{Appendix - Github} \label{section:github}
-\url{https://github.com/magnucb/SSB}
+\url{https://github.com/magnucb/Ast4310-SSB}
 
 
 \end{document}

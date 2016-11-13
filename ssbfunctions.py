@@ -205,7 +205,7 @@ class specline(solcont_tools):
         # s=2 : Na D1
         # s=3 : Na D2
         # classical Unsold recipe
-        s = s+1
+        s = s+1     # index correction
         rsq_u = self.rsq_NaD(s)
         rsq_l = self.rsq_NaD(1) # lower level D1 and D2 lines are ground state s=1
         
